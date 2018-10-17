@@ -22,6 +22,13 @@
         rd done <id_from_`rd`_output>
 """
 
+# Features to add in the future:
+# (Maybe this can later be moved to github issues.)
+#
+# * [ ] Support 7dates.
+# * [ ] A snooze command.
+# * [ ] Support a +(time) format.
+
 
 # _______________________________________________________________________
 # Imports
