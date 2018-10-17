@@ -6,9 +6,9 @@ This is something I built because Google Inbox was murdered.
 
 ## Installation
 
-I assume that `python3` is in your path.
+I assume that both `python3` and `/usr/local/bin` are in your path.
 
-    git clone <this repo>
+    git clone https://github.com/tylerneylon/rd.git
     ln -s $(pwd)/rd/rd.py /usr/local/bin/rd
 
 ## Usage
@@ -24,8 +24,8 @@ $ rd
 (There are N other reminders.)
 
 # Add a new reminder:
-rd add day[@time] <reminder text>
+$ rd add day[@time] <reminder text>
 
 # Mark a reminder as done:
-rd done <id_from_`rd`_output>
+$ rd done <id_from_`rd`_output>
 ```
