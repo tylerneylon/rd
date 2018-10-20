@@ -16,10 +16,14 @@
         (There are N other reminders.)
 
         # Add a new reminder:
-        rd add day[@time] <reminder text>
+        $ rd add day[@time] <reminder text>
 
         # Mark a reminder as done:
-        rd done <id_from_`rd`_output>
+        $ rd done <id_from_`rd`_output>
+
+        # List all upcoming reminders, including
+        # those that aren't due yet:
+        $ rd ls
 """
 
 # Features to add in the future:
@@ -113,7 +117,7 @@ def save_reminders(reminders):
     with open(savefile, 'w') as f:
         json.dump(core_reminders, f)
 
-def print_reminders():
+def print_reminders(do_show_all=False):
 
     reminders = get_reminders()
 
@@ -126,9 +130,16 @@ def print_reminders():
     num_printed = 0
     for r in reminders:
         dbg_print('r.due:', r['due'])
-        if r['due'] > now:
+        if r['due'] > now and not do_show_all:
             continue
-        print('%02d. %s' % (r['id'], r['text']))
+        prefix = ('%02d.' % r['id']) if 'id' in r else '--.'
+        if do_show_all:
+            due_time = datetime.datetime.fromtimestamp(r['due'])
+            prefix += time.strftime(
+                    '  %I:%M %p %m/%d/%Y ',
+                    due_time.timetuple()
+            )
+        print('%s %s' % (prefix, r['text']))
         num_printed += 1
 
     if num_printed == 0:
@@ -196,6 +207,8 @@ if __name__ == '__main__':
 
     if len(sys.argv) == 1:
         print_reminders()
+    elif sys.argv[1] == 'ls':
+        print_reminders(do_show_all=True)
     elif sys.argv[1] == 'add':
         if len(sys.argv) < 4:
             print_help_and_exit()
