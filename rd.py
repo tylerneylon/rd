@@ -192,8 +192,25 @@ def add_reminder(due_str, text):
     print('Due:', time.strftime('%I:%M %p %A, %B %e, %Y', due).strip())
 
 def mark_done(reminder_id):
-    # TODO Implement this.
-    pass
+
+    reminders = get_reminders()
+
+    try:
+        id_num = int(reminder_id)
+    except:
+        print('Error: "%s" is not a number.' % reminder_id)
+        print_help_and_exit()
+
+    matching = [i for i, r in enumerate(reminders) if r.get('id') == id_num]
+
+    if len(matching) == 0:
+        print('Error: no reminder with id "%d."' % id_num)
+        print_help_and_exit()
+
+    assert(len(matching) == 1)
+
+    del reminders[matching[0]]
+    save_reminders(reminders)
 
 def print_help_and_exit():
     print(__doc__)
