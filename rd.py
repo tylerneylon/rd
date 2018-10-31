@@ -32,6 +32,7 @@
 # * [ ] Support 7dates.
 # * [ ] A snooze command.
 # * [ ] Support a +(time) format.
+# * [ ] The done command ought to print an update str and the new reminders.
 
 
 # _______________________________________________________________________
