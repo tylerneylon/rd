@@ -32,7 +32,8 @@
 # * [ ] Support 7dates.
 # * [ ] A snooze command.
 # * [ ] Support a +(time) format.
-# * [ ] The done command ought to print an update str and the new reminders.
+# * [x] The done command ought to print an update str and the new reminders.
+# * [ ] Save in a different file completed reminders rather than deleting.
 
 
 # _______________________________________________________________________
@@ -75,6 +76,8 @@ def add_ids(reminders):
     now = time.time()
     num_ids_given = 0
     for r in reminders:
+        if 'id' in r:
+            del r['id']  # This is needed when a reminder was removed.
         if r['due'] > now:
             continue
         r['id'] = (num_ids_given + 1)
@@ -106,7 +109,7 @@ def save_reminders(reminders):
 
     global _reminders
 
-    _reminders = reminders
+    _reminders = add_ids(reminders)
 
     # Avoid saving temporary keys like 'id' to disk.
     core_reminders = [
@@ -221,8 +224,14 @@ def mark_done(reminder_id):
 
     assert(len(matching) == 1)
 
-    del reminders[matching[0]]
+    index = matching[0]
+    print('Marking as done: %s' % reminders[index]['text'])
+    del reminders[index]
     save_reminders(reminders)
+
+    print('\n____________________________')
+    print('These remain:\n')
+    print_reminders()
 
 def print_help_and_exit():
     print(__doc__)
