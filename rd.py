@@ -165,11 +165,22 @@ def parse_due_str(due_str):
     day_str = parts[0]
     time_str = parts[1] if len(parts) > 1 else '8am'
 
-    # TODO: By default, interpret cross-year boundaries intuitively.
+    date  = datetime.datetime.strptime(day_str, '%m/%d').date()
+    today = datetime.datetime.now().date()
+    date  = date.replace(year=today.year)
 
-    date = datetime.datetime.strptime(day_str, '%m/%d').date()
-    now  = datetime.datetime.now().date()
-    date = date.replace(year=now.year)
+    # If `date` is before today, assume it means next year.
+    if date < today:
+
+        # If `date` is before today and within the past year, issue a warning.
+        # This is a case where the user is likely to have made a mistake.
+        if today - datetime.timedelta(days=30) < date:
+            print('Info: I\'m interpretring %s as indicating next year.' %
+                    due_str)
+        else:
+            dbg_print('Interpreting %s as indicating next year.' % due_str)
+
+        date = date.replace(year=(today.year + 1))
 
     due = datetime.datetime(date.year, date.month, date.day, hour=8)
 
