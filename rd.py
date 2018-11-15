@@ -149,6 +149,22 @@ def print_reminders(do_show_all=False):
     if num_printed == 0:
         print('No reminders right now!')
 
+def parse_time_str(time_str):
+    """ Return the hour indicated by time_str. This currently only understands
+        the following syntaxes:
+
+        * 2am   # Returns 2.
+        * 5pm   # Returns 17.
+        * 15    # Returns 15; no suffix -> interpreted as an hour in [0, 24).
+    """
+
+    if time_str.endswith('am'):
+        return int(time_str[:-2])
+    elif time_str.endswith('pm'):
+        return int(time_str[:-2]) + 12
+    else:
+        return int(time_str)
+
 def parse_due_str(due_str):
     """ Return a time tuple based on the human-written string
         `due_str`. This returns None if the string couldn't be parsed.
@@ -185,7 +201,10 @@ def parse_due_str(due_str):
 
         date = date.replace(year=(today.year + 1))
 
-    due = datetime.datetime(date.year, date.month, date.day, hour=8)
+    hour = parse_time_str(time_str)
+    if hour is None:
+        return None
+    due = datetime.datetime(date.year, date.month, date.day, hour=hour)
 
     return due.timetuple()
 
