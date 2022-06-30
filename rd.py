@@ -24,6 +24,12 @@
         # List all upcoming reminders, including
         # those that aren't due yet:
         $ rd ls
+
+    Time and date string formats:
+
+    * MM/DD as month/day
+    * @2am, @3pm OR
+    * @15, without an am/pm suffix, uses 24-hour time
 """
 
 # Features to add in the future:
@@ -34,16 +40,18 @@
 # * [ ] Support a +(time) format.
 # * [x] The done command ought to print an update str and the new reminders.
 # * [ ] Save in a different file completed reminders rather than deleting.
+# * [ ] Can delete added reminders that aren't due yet.
 
 
 # _______________________________________________________________________
 # Imports
 
-import datetime
 import json
 import os
 import sys
 import time
+
+from datetime import date, datetime, timedelta
 
 
 # _______________________________________________________________________
@@ -138,7 +146,7 @@ def print_reminders(do_show_all=False):
             continue
         prefix = ('%02d.' % r['id']) if 'id' in r else '--.'
         if do_show_all:
-            due_time = datetime.datetime.fromtimestamp(r['due'])
+            due_time = datetime.fromtimestamp(r['due'])
             prefix += time.strftime(
                     '  %I:%M %p %m/%d/%Y ',
                     due_time.timetuple()
@@ -184,27 +192,32 @@ def parse_due_str(due_str):
     day_str = parts[0]
     time_str = parts[1] if len(parts) > 1 else '8am'
 
-    date  = datetime.datetime.strptime(day_str, '%m/%d').date()
-    today = datetime.datetime.now().date()
-    date  = date.replace(year=today.year)
+    today = date.today()
 
-    # If `date` is before today, assume it means next year.
-    if date < today:
+    if day_str.startswith('+'):
+        day = today + timedelta(days=int(day_str[1:]))
 
-        # If `date` is before today and within the past year, issue a warning.
+    else:
+        day = datetime.strptime(day_str, '%m/%d').date()
+        day = day.replace(year=today.year)
+
+    # If `day` is before today, assume it means next year.
+    if day < today:
+
+        # If `day` is before today and within the past month, issue a warning.
         # This is a case where the user is likely to have made a mistake.
-        if today - datetime.timedelta(days=30) < date:
+        if today - timedelta(days=30) < day:
             print('Info: I\'m interpretring %s as indicating next year.' %
                     due_str)
         else:
             dbg_print('Interpreting %s as indicating next year.' % due_str)
 
-        date = date.replace(year=(today.year + 1))
+        day = day.replace(year=(today.year + 1))
 
     hour = parse_time_str(time_str)
     if hour is None:
         return None
-    due = datetime.datetime(date.year, date.month, date.day, hour=hour)
+    due = datetime(day.year, day.month, day.day, hour=hour)
 
     return due.timetuple()
 
